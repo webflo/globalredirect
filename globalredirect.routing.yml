@@ -1,0 +1,6 @@
+globalredirect_settings:
+  pattern: '/admin/config/system/globalredirect'
+  defaults:
+    _form: '\Drupal\globalredirect\GlobalredirectSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

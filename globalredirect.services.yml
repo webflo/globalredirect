@@ -1,0 +1,9 @@
+services:
+  globalredirect.redirection_manager:
+    class: Drupal\globalredirect\GlobalredirectRedirectionManager
+    arguments: ['@path.alias_manager']
+  globalredirect.subscriber:
+    class: Drupal\globalredirect\EventSubscriber\GlobalredirectSubscriber
+    tags:
+      - { name: event_subscriber }
+    arguments: ['@globalredirect.redirection_manager']
