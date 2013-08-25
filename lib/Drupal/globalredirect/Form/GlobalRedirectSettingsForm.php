@@ -24,4 +24,199 @@ class GlobalRedirectSettingsForm extends SystemConfigFormBase {
     return 'globalredirect_settings';
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, array &$form_state) {
+    
+  	// Get all settings
+  	$config = $this->configFactory->get('globalredirect.settings');
+  	$settings = $config->get();
+
+    $form['settings'] = array(
+    	'#tree' => TRUE,
+  	);
+
+  	$form['settings']['deslash'] = array(
+  		'#type' => 'checkbox',
+  		'#title' => t('Deslash'),
+  		'#description' => t('If enabled, this option will remove the trailing slash from requests. This stops requests such as <code>example.com/node/1/</code> failing to match the corresponding alias and can cause duplicate content. On the other hand, if you require certain requests to have a trailing slash, this feature can cause problems so may need to be disabled.'),
+  		'#default_value' => $settings['deslash'],
+  	);
+
+	  $form['settings']['nonclean_to_clean'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Non-clean to Clean'),
+	    '#description' => t('If enabled, this option will redirect from non-clean to clean URL (if Clean URL\'s are enabled). This will stop, for example, node 1  existing on both <code>example.com/node/1</code> AND <code>example.com?q=node/1</code>.'),
+	    '#default_value' => $settings['nonclean_to_clean'],
+	  );
+
+	  $form['settings']['trailing_zero'] = array(
+	    '#type' => 'radios',
+	    '#title' => t('Remove Trailing Zero Argument'),
+	    '#description' => t('If enabled, any instance of "/0" will be trimmed from the right of the URL. This stops duplicate pages such as "taxonomy/term/1" and "taxonomy/term/1/0" where 0 is the default depth. There is an option of limiting this feature to taxonomy term pages ONLY or allowing it to effect any page. <strong>By default this feature is disabled to avoid any unexpected behavior. Also of note, the trailing /0 "depth modifier" was removed from Drupal 7.</strong>'),
+	    '#options' => array(
+	      0 => t('Disabled'),
+	      1 => t('Enabled for all pages'),
+	      2 => t('Enabled for taxonomy term pages only'),
+	    ),
+	    '#default_value' => $settings['trailing_zero'],
+	  );
+
+	  $form['settings']['menu_check'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Menu Access Checking'),
+	    '#description' => t('If enabled, the module will check the user has access to the page before redirecting. This helps to stop redirection on protected pages and avoids giving away <em>secret</em> URL\'s. <strong>By default this feature is disabled to avoid any unexpected behavior</strong>'),
+	    '#default_value' => $settings['menu_check'],
+	  );
+
+	  $form['settings']['case_sensitive_urls'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Case Sensitive URL Checking'),
+	    '#description' => t('If enabled, the module will compare the current URL to the alias stored in the system. If there are any differences in case then the user will be redirected to the correct URL.'),
+	    '#default_value' => $settings['case_sensitive_urls'],
+	  );
+
+
+	  $form['settings']['language_redirect'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Language Path Checking'),
+	    '#description' => t('If enabled, the module will check that the page being viewed matches the language in the URL or the system default. For example, viewing a French node while the site is in English will cause a redirect to the English node.'),
+	    '#default_value' => $settings['language_redirect'],
+	  );
+
+
+	  $form['settings']['canonical'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Add Canonical Link'),
+	    '#description' => t('If enabled, will add a <a href="!canonical">canonical link</a> to each page.', array('!canonical' => 'http://googlewebmastercentral.blogspot.com/2009/02/specify-your-canonical.html')),
+	    '#default_value' => $settings['canonical'],
+	  );
+
+
+	  $form['settings']['content_location_header'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Set Content Location Header'),
+	    '#description' => t('If enabled, will add a <a href="!canonical">Content-Location</a> header.', array('!canonical' => 'http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.14')),
+	    '#default_value' => $settings['content_location_header'],
+	  );
+
+
+	  $form['settings']['term_path_handler'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Taxonomy Term Path Handler'),
+	    '#description' => t('If enabled, any request to a taxonomy/term/[tid] page will check that the correct path is being used for the term\'s vocabulary.'),
+	    '#default_value' => $settings['term_path_handler'],
+	  );
+
+	  $form['settings']['frontpage_redirect'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Frontpage Redirect Handler'),
+	    '#description' => t('If enabled, any request to the frontpage path will redirect to the site root.<br />
+	                         Whatever you set as the path of the front page on the !link settings page will redirect to the site root (e.g. "node" or "node/1" and also its alias (e.g. in case you have set "node/1" as your home page but that page also has an alias "home")).', array(
+	      '!link' => l(t('Site Information'), 'admin/settings/site-information'),
+	    )),
+	    '#default_value' => $settings['frontpage_redirect'],
+	  );
+
+	  $form['settings']['ignore_admin_path'] = array(
+	    '#type' => 'checkbox',
+	    '#title' => t('Ignore Admin Path'),
+	    '#description' => t('If enabled, any request to the admin section of the site will be ignored by Global Redirect.<br />
+	                         This is useful if you are experiencing problems with Global Redirect and want to protect the admin section of your website. NOTE: This may not be desirable if you are using path aliases for certain admin URLs.'),
+	    '#default_value' => $settings['ignore_admin_path'],
+	  );
+
+	  $form['buttons']['reset'] = array(
+	    '#type' => 'submit',
+	    '#submit' => array(array($this, 'submitResetDefaults')),
+	    '#value' => t('Reset to defaults'),
+	  );
+
+    return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   * Compares the submitted settings to the defaults and unsets any that are equal. This was we only store overrides.
+   */
+  public function submitForm(array &$form, array &$form_state) {
+
+  	// Get config factory
+  	$config = $this->configFactory->get('globalredirect.settings');
+
+  	$form_values = $form_state['values']['settings'];
+
+    $config
+      ->set('deslash', $form_values['deslash'])
+      ->set('nonclean_to_clean', $form_values['nonclean_to_clean'])
+      ->set('trailing_zero', $form_values['trailing_zero'])
+      ->set('menu_check', $form_values['menu_check'])
+      ->set('case_sensitive_urls', $form_values['case_sensitive_urls'])
+      ->set('language_redirect', $form_values['language_redirect'])
+      ->set('canonical', $form_values['canonical'])
+      ->set('content_location_header', $form_values['content_location_header'])
+      ->set('term_path_handler', $form_values['term_path_handler'])
+      ->set('frontpage_redirect', $form_values['frontpage_redirect'])
+      ->set('ignore_admin_path', $form_values['ignore_admin_path'])
+      ->save();
+
+    parent::submitForm($form, $form_state);
+
+  }
+
+
+
+  /**
+   * Clears the caches.
+   */
+  public function submitResetDefaults(array &$form, array &$form_state) {
+  	$config = $this->configFactory->get('globalredirect.settings');
+
+    // Get config factory
+  	$settingsDefault = $this->getDefaultSettings();
+
+    $config
+      ->set('deslash', $settingsDefault['deslash'])
+      ->set('nonclean_to_clean', $settingsDefault['nonclean_to_clean'])
+      ->set('trailing_zero', $settingsDefault['trailing_zero'])
+      ->set('menu_check', $settingsDefault['menu_check'])
+      ->set('case_sensitive_urls', $settingsDefault['case_sensitive_urls'])
+      ->set('language_redirect', $settingsDefault['language_redirect'])
+      ->set('canonical', $settingsDefault['canonical'])
+      ->set('content_location_header', $settingsDefault['content_location_header'])
+      ->set('term_path_handler', $settingsDefault['term_path_handler'])
+      ->set('frontpage_redirect', $settingsDefault['frontpage_redirect'])
+      ->set('ignore_admin_path', $settingsDefault['ignore_admin_path'])
+      ->save();
+
+    parent::submitForm($form, $form_state);
+
+  }
+
+
+  /**
+   * Returns an associative array of default settings
+   * @return array
+   */
+  public function getDefaultSettings() {
+
+    $defaults = array(
+      'deslash' => 1,
+      'nonclean_to_clean' => 1,
+      'trailing_zero' => 0,
+      'menu_check' => 0,
+      'case_sensitive_urls' => 1,
+      'language_redirect' => 0,
+      'canonical' => 0,
+      'content_location_header' => 0,
+      'term_path_handler' => 1,
+      'frontpage_redirect' => 1,
+      'ignore_admin_path' => 1,
+    );
+
+    return $defaults;
+
+  }
+
 }
