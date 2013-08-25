@@ -1,6 +1,6 @@
 globalredirect.settings:
   type: mapping
-  label: 'GlobalRedirect Settings'
+  label: 'Global Redirect Settings'
   mapping:
     deslash:
       type: boolean

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\globalredirect\EventSubscriber\GlobalRedirectSubscriber.
+ * Definition of Drupal\globalredirect\EventSubscriber\GlobalredirectSubscriber.
  */
 
 namespace Drupal\globalredirect\EventSubscriber;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 /**
  * KernelEvents::REQUEST subscriber for redirecting q=path/to/page requests.
  */
-class GlobalRedirectSubscriber implements EventSubscriberInterface {
+class GlobalredirectSubscriber implements EventSubscriberInterface {
 
   /**
    * Detects a q=path/to/page style request and performs a redirect.
@@ -23,7 +23,7 @@ class GlobalRedirectSubscriber implements EventSubscriberInterface {
    * @param Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    *   The Event to process.
    */
-  public function GlobalRedirectCleanUrls(GetResponseEvent $event) {
+  public function globalredirectCleanUrls(GetResponseEvent $event) {
     global $base_url;
     $request = $event->getRequest();
     $query = $request->query->all();
@@ -46,7 +46,7 @@ class GlobalRedirectSubscriber implements EventSubscriberInterface {
    * @param Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    *   The Event to process.
    */
-  public function GlobalRedirectDeslash(GetResponseEvent $event) {
+  public function globalredirectDeslash(GetResponseEvent $event) {
     global $base_url;
     $request = $event->getRequest();
     $query = $request->query->all();
@@ -75,8 +75,8 @@ class GlobalRedirectSubscriber implements EventSubscriberInterface {
     // Drupal\Core\EventSubscriber\PathSubscriber, because there is no need
     // to decode the incoming path, resolve language, etc. if the real path
     // information is in the query string.
-    $events[KernelEvents::REQUEST][] = array('GlobalRedirectCleanUrls', 500);
-    $events[KernelEvents::REQUEST][] = array('GlobalRedirectDeslash', 500);
+    $events[KernelEvents::REQUEST][] = array('globalredirectCleanUrls', 500);
+    $events[KernelEvents::REQUEST][] = array('globalredirectDeslash', 500);
     return $events;
   }
 }
