@@ -1,5 +1,5 @@
 services:
-  globalredirect_event_subscriber:
-    class: Drupal\globalredirect\EventSubscriber\GlobalRedirectSubscriber
+  globalredirect.subscriber:
+    class: Drupal\globalredirect\EventSubscriber\GlobalredirectSubscriber
     tags:
-      - {name: event_subscriber}
+      - { name: event_subscriber }

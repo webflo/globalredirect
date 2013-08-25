@@ -40,8 +40,6 @@ class GlobalRedirectSubscriber implements EventSubscriberInterface {
     }
   }
 
-
-
   /**
    * Detects a url with an ending slash (/) and removes it
    *
@@ -68,7 +66,6 @@ class GlobalRedirectSubscriber implements EventSubscriberInterface {
       $event->setResponse(new RedirectResponse($url, 301));
     }
   }
-
 
   /**
    * {@inheritdoc}

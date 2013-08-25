@@ -3,5 +3,35 @@ globalredirect.settings:
   label: 'GlobalRedirect Settings'
   mapping:
     deslash:
-      type: string
-      label: 'deslash'
+      type: boolean
+      label: 'Deslash'
+    nonclean_to_clean:
+      type: boolean
+      label: 'Non-clean to Clean'
+    trailing_zero:
+      type: integer
+      label: 'Remove Trailing Zero Argument'
+    menu_check:
+      type: boolean
+      label: 'Menu Access Checking'
+    case_sensitive_urls:
+      type: boolean
+      label: 'Case Sensitive URL Checking'
+    language_redirect:
+      type: boolean
+      label: 'Language Path Checking'
+    canonical:
+      type: boolean
+      label: 'Add Canonical Link'
+    content_location_header:
+      type: boolean
+      label: 'Set Content Location Header'
+    term_path_handler:
+      type: boolean
+      label: 'Taxonomy Term Path Handler'
+    frontpage_redirect:
+      type: boolean
+      label: 'Frontpage Redirect Handler'
+    ignore_admin_path:
+      type: boolean
+      label: 'Ignore Admin Path'
