@@ -1,0 +1,7 @@
+globalredirect.settings:
+  type: mapping
+  label: 'GlobalRedirect Settings'
+  mapping:
+    deslash:
+      type: string
+      label: 'deslash'
