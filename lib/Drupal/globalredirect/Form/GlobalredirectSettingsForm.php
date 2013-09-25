@@ -7,14 +7,12 @@
 
 namespace Drupal\globalredirect\Form;
 
-use Drupal\system\SystemConfigFormBase;
-use Drupal\Core\Config\ConfigFactory;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Form\ConfigFormBase;
 
 /**
  * Defines a form to configure module settings.
  */
-class GlobalredirectSettingsForm extends SystemConfigFormBase {
+class GlobalredirectSettingsForm extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
@@ -29,7 +27,7 @@ class GlobalredirectSettingsForm extends SystemConfigFormBase {
   public function buildForm(array $form, array &$form_state) {
     
   	// Get all settings
-  	$config = $this->configFactory->get('globalredirect.settings');
+  	$config = $this->config('globalredirect.settings');
   	$settings = $config->get();
 
     $form['settings'] = array(
