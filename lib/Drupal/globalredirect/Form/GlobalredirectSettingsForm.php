@@ -25,7 +25,7 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, array &$form_state) {
-    
+
   	// Get all settings
   	$config = $this->config('globalredirect.settings');
   	$settings = $config->get();
