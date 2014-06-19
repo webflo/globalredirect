@@ -141,7 +141,8 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
 
     $request = $event->getRequest();
     $request_uri = $request->getRequestUri();
-    if (!empty($request_uri)) {
+    // Redirect only if the current path is not the root.
+    if (!empty($request_uri) && $request_uri != '/') {
       $this->setResponse($event, '<front>');
     }
   }
