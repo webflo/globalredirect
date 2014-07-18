@@ -22,7 +22,7 @@ class GlobalRedirectTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('entity_test', 'filter', 'node', 'path', 'globalredirect', 'taxonomy', 'forum', 'views');
+  public static $modules = array('path', 'node', 'globalredirect', 'taxonomy', 'forum', 'views');
 
   /**
    * @var \Drupal\Core\Session\AccountInterface
