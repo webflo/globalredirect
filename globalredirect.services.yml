@@ -1,7 +1,7 @@
 services:
   globalredirect.subscriber:
     class: Drupal\globalredirect\EventSubscriber\GlobalredirectSubscriber
-    arguments: ['@config.factory', '@path.alias_manager', '@language_manager', '@module_handler', '@entity.manager', '@globalredirect.checker']
+    arguments: ['@config.factory', '@path.alias_manager', '@language_manager', '@module_handler', '@entity.manager', '@globalredirect.checker', '@router.request_context']
     tags:
       - { name: event_subscriber }
   globalredirect.checker:

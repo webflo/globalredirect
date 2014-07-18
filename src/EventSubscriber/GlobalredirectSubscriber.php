@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\globalredirect\EventSubscriber\GlobalredirectSubscriber.
+ * Contains \Drupal\globalredirect\EventSubscriber\GlobalredirectSubscriber.
  */
 
 namespace Drupal\globalredirect\EventSubscriber;
@@ -20,6 +20,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\Routing\RequestContext;
 
 /**
  * KernelEvents::REQUEST subscriber for redirecting q=path/to/page requests.
@@ -30,11 +31,6 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @var \Drupal\Core\Config\Config
    */
   protected $config;
-
-  /**
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
 
   /**
    * @var \Drupal\Core\Path\AliasManager
@@ -62,6 +58,16 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
   protected $redirectChecker;
 
   /**
+   * @var \Symfony\Component\Routing\RequestContext
+   */
+  protected $context;
+
+  /**
+   * @var \Drupal\Core\Routing\UrlGenerator
+   */
+  protected $urlGenerator;
+
+  /**
    * Constructs a \Drupal\redirect\EventSubscriber\RedirectRequestSubscriber object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -76,15 +82,17 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    *   The entity manager service.
    * @param \Drupal\globalredirect\RedirectChecker $redirect_checker
    *   The redirect checker service.
+   * @param \Symfony\Component\Routing\RequestContext
+   *   Request context.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, AliasManager $alias_manager, LanguageManagerInterface $language_manager, ModuleHandlerInterface $module_handler, EntityManagerInterface $entity_manager, RedirectChecker $redirect_checker) {
-    $this->configFactory = $config_factory;
+  public function __construct(ConfigFactoryInterface $config_factory, AliasManager $alias_manager, LanguageManagerInterface $language_manager, ModuleHandlerInterface $module_handler, EntityManagerInterface $entity_manager, RedirectChecker $redirect_checker, RequestContext $context) {
     $this->config = $config_factory->get('globalredirect.settings');
     $this->aliasManager = $alias_manager;
     $this->languageManager = $language_manager;
     $this->moduleHanldler = $module_handler;
     $this->entityManager = $entity_manager;
     $this->redirectChecker = $redirect_checker;
+    $this->context = $context;
   }
 
   /**
@@ -112,7 +120,10 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectDeslash(GetResponseEvent $event) {
-    if (!$this->config->get('deslash')) {
+    // For the front page we get into a loop because $request->getPathInfo()
+    // will return the "/" no matter if the site has been accessed via slashed
+    // or deslashed url.
+    if (!$this->config->get('deslash') || drupal_is_front_page()) {
       return;
     }
 
@@ -156,6 +167,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     if (!$this->config->get('normalize_aliases') || !$path = ltrim($this->getPathInfo($event->getRequest()), '/')) {
       return;
     }
+
     $system_path = $this->aliasManager->getPathByAlias($path);
     $alias = $this->aliasManager->getAliasByPath($system_path, $this->languageManager->getCurrentLanguage()->id);
     // If the alias defined in the system is not the same as the one via which
@@ -193,7 +205,13 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    *   The path where we want to redirect.
    */
   protected function setResponse(GetResponseEvent $event, $path) {
+    if (empty($path) || $path == '/') {
+      $path = '<front>';
+    }
+
     $request = $event->getRequest();
+    $this->context->fromRequest($request);
+
     $url = Url::createFromPath($path);
     parse_str($request->getQueryString(), $query);
     $url->setOption('query', $query);
@@ -217,22 +235,25 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    *   Normalizes path info.
    */
   protected function getPathInfo(Request $request) {
-    return str_replace(base_path(), '/', $request->getPathInfo());
+    if (base_path() != '/') {
+      return str_replace(base_path(), '/', $request->getPathInfo());
+    }
+
+    return $request->getPathInfo();
   }
 
   /**
    * {@inheritdoc}
    */
   static function getSubscribedEvents() {
-    // Run earlier than all the listeners in
-    // Drupal\Core\EventSubscriber\PathSubscriber, because there is no need
-    // to decode the incoming path, resolve language, etc. if the real path
-    // information is in the query string.
-    $events[KernelEvents::REQUEST][] = array('globalredirectCleanUrls', 32);
-    $events[KernelEvents::REQUEST][] = array('globalredirectDeslash', 32);
-    $events[KernelEvents::REQUEST][] = array('globalredirectFrontPage', 32);
-    $events[KernelEvents::REQUEST][] = array('globalredirectNormalizeAliases', 32);
-    $events[KernelEvents::REQUEST][] = array('globalredirectForum', 32);
+    // This needs to run before RouterListener::onKernelRequest(), which has
+    // a priority of 32. Otherwise, that aborts the request if no matching
+    // route is found.
+    $events[KernelEvents::REQUEST][] = array('globalredirectCleanUrls', 33);
+    $events[KernelEvents::REQUEST][] = array('globalredirectDeslash', 34);
+    $events[KernelEvents::REQUEST][] = array('globalredirectFrontPage', 35);
+    $events[KernelEvents::REQUEST][] = array('globalredirectNormalizeAliases', 36);
+    $events[KernelEvents::REQUEST][] = array('globalredirectForum', 37);
     return $events;
   }
 }

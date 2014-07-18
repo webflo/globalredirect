@@ -22,7 +22,7 @@ class GlobalRedirectTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('path', 'node', 'globalredirect', 'taxonomy', 'forum', 'views');
+  public static $modules = array('entity_test', 'filter', 'node', 'path', 'globalredirect', 'taxonomy', 'forum', 'views');
 
   /**
    * @var \Drupal\Core\Session\AccountInterface
@@ -38,11 +38,6 @@ class GlobalRedirectTest extends WebTestBase {
    * @var \Drupal\Core\Config\Config
    */
   protected $config;
-
-  /**
-   * @var \Drupal\Core\Path\Path
-   */
-  protected $pathService;
 
   protected $forumTerm;
   protected $term;
@@ -67,8 +62,8 @@ class GlobalRedirectTest extends WebTestBase {
 
     $this->config = \Drupal::config('globalredirect.settings');
 
-    $this->drupalCreateContentType(array('type' => 'page'));
-    $this->drupalCreateContentType(array('type' => 'article'));
+    $this->drupalCreateContentType(array('type' => 'page', 'name' => 'Page'));
+    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
 
     // Create a users for testing the access.
     $this->normalUser = $this->drupalCreateUser(array(
@@ -124,7 +119,6 @@ class GlobalRedirectTest extends WebTestBase {
    * Will test the redirects.
    */
   public function testRedirects() {
-    $this->drupalLogin($this->normalUser);
 
     // Test alias normalization.
 
