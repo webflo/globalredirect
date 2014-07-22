@@ -45,7 +45,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
   /**
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
-  protected $moduleHanldler;
+  protected $moduleHandler;
 
   /**
    * @var \Drupal\Core\Entity\EntityManagerInterface
@@ -89,7 +89,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     $this->config = $config_factory->get('globalredirect.settings');
     $this->aliasManager = $alias_manager;
     $this->languageManager = $language_manager;
-    $this->moduleHanldler = $module_handler;
+    $this->moduleHandler = $module_handler;
     $this->entityManager = $entity_manager;
     $this->redirectChecker = $redirect_checker;
     $this->context = $context;
@@ -127,7 +127,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $path_info = $this->getPathInfo($event->getRequest());
+    $path_info = ltrim($event->getRequest()->getPathInfo(), '/');
     if (substr($path_info, -1, 1) === '/') {
       $path_info = trim($path_info, '/');
       try {
@@ -151,9 +151,10 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     }
 
     $request = $event->getRequest();
-    $request_uri = $request->getRequestUri();
+    $path = trim($request->getPathInfo(), '/');
+
     // Redirect only if the current path is not the root.
-    if (!empty($request_uri) && $request_uri != '/') {
+    if (!empty($path)) {
       $this->setResponse($event, '<front>');
     }
   }
@@ -164,7 +165,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectNormalizeAliases(GetResponseEvent $event) {
-    if (!$this->config->get('normalize_aliases') || !$path = ltrim($this->getPathInfo($event->getRequest()), '/')) {
+    if (!$this->config->get('normalize_aliases') || !$path = trim($event->getRequest()->getPathInfo(), '/')) {
       return;
     }
 
@@ -185,12 +186,12 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    */
   public function globalredirectForum(GetResponseEvent $event) {
     $request = $event->getRequest();
-    if (!$this->config->get('term_path_handler') || !$this->moduleHanldler->moduleExists('taxonomy') || !preg_match('/taxonomy\/term\/([0-9]+)$/', $request->getUri(), $matches)) {
+    if (!$this->config->get('term_path_handler') || !$this->moduleHandler->moduleExists('forum') || !preg_match('/taxonomy\/term\/([0-9]+)$/', $request->getUri(), $matches)) {
       return;
     }
 
     $term = $this->entityManager->getStorage('taxonomy_term')->load($matches[1]);
-    if (!empty($term) && $term->url() != $this->getPathInfo($request)) {
+    if (!empty($term) && $term->url() != $request->getPathInfo()) {
       $system_path = $this->aliasManager->getPathByAlias(ltrim($term->url(), '/'));
       $this->setResponse($event, $system_path);
     }
@@ -220,26 +221,6 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     if ($this->redirectChecker->canRedirect($url->getRouteName(), $request)) {
       $event->setResponse(new RedirectResponse($url->toString(), 301));
     }
-  }
-
-  /**
-   * Normalizes the path info obtained from the Request object.
-   *
-   * This is needed as for sites installed in subdirectory the
-   * result of the Request::getPathInfo() starts with the subdirectory name.
-   *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The current request object.
-   *
-   * @return string
-   *   Normalizes path info.
-   */
-  protected function getPathInfo(Request $request) {
-    if (base_path() != '/') {
-      return str_replace(base_path(), '/', $request->getPathInfo());
-    }
-
-    return $request->getPathInfo();
   }
 
   /**
