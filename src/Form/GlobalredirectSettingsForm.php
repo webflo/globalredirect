@@ -8,6 +8,7 @@
 namespace Drupal\globalredirect\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Defines a form to configure module settings.
@@ -24,7 +25,7 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state) {
 
   	// Get all settings
   	$config = $this->config('globalredirect.settings');
@@ -115,7 +116,7 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
   /**
    * Compares the submitted settings to the defaults and unsets any that are equal. This was we only store overrides.
    */
-  public function submitForm(array &$form, array &$form_state) {
+  public function submitForm(array &$form, FormStateInterface $form_state) {
 
   	// Get config factory
     $config = $this->config('globalredirect.settings');
@@ -143,7 +144,7 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
   /**
    * Clears the caches.
    */
-  public function submitResetDefaults(array &$form, array &$form_state) {
+  public function submitResetDefaults(array &$form, FormStateInterface $form_state) {
     $config = $this->config('globalredirect.settings');
 
     // Get config factory
