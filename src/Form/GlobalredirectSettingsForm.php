@@ -106,7 +106,7 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
 
 	  $form['buttons']['reset'] = array(
 	    '#type' => 'submit',
-	    '#submit' => array(array($this, 'submitResetDefaults')),
+	    '#submit' => array('::submitResetDefaults'),
 	    '#value' => t('Reset to defaults'),
 	  );
 
