@@ -120,8 +120,7 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
 
   	// Get config factory
     $config = $this->config('globalredirect.settings');
-
-  	$form_values = $form_state['values']['settings'];
+    $form_values = $form_state->getValue(['settings']);
 
     $config
       ->set('deslash', $form_values['deslash'])
