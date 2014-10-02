@@ -132,7 +132,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
       $path_info = trim($path_info, '/');
       try {
         $path_info = $this->aliasManager->getPathByAlias($path_info);
-        $this->setResponse($event, $path_info);
+        $this->setResponse($event, Url::fromUri('base://' . $path_info));
       }
       catch (MatchingRouteNotFoundException $e) {
         // Do nothing here as it is not our responsibility to handle this.
@@ -155,7 +155,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
 
     // Redirect only if the current path is not the root.
     if (!empty($path)) {
-      $this->setResponse($event, '<front>');
+      $this->setResponse($event, Url::fromRoute('<front>'));
     }
   }
 
@@ -175,7 +175,9 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     // the page has been accessed do a redirect to the one defined in the
     // system.
     if ($alias != $path) {
-      $this->setResponse($event, $system_path);
+      if ($url = \Drupal::pathValidator()->getUrlIfValid($alias)) {
+        $this->setResponse($event, $url);
+      }
     }
   }
 
@@ -193,7 +195,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     $term = $this->entityManager->getStorage('taxonomy_term')->load($matches[1]);
     if (!empty($term) && $term->url() != $request->getPathInfo()) {
       $system_path = $this->aliasManager->getPathByAlias(ltrim($term->url(), '/'));
-      $this->setResponse($event, $system_path);
+      $this->setResponse($event, Url::fromUri('base://' . $system_path));
     }
   }
 
@@ -202,23 +204,18 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    *   The event object.
-   * @param string $path
-   *   The path where we want to redirect.
+   * @param \Drupal\Core\Url $url
+   *   The Url where we want to redirect.
    */
-  protected function setResponse(GetResponseEvent $event, $path) {
-    if (empty($path) || $path == '/') {
-      $path = '<front>';
-    }
-
+  protected function setResponse(GetResponseEvent $event, Url $url) {
     $request = $event->getRequest();
     $this->context->fromRequest($request);
 
-    $url = Url::createFromPath($path);
     parse_str($request->getQueryString(), $query);
     $url->setOption('query', $query);
     $url->setAbsolute(TRUE);
 
-    if ($this->redirectChecker->canRedirect($url->getRouteName(), $request)) {
+    if ($url->isExternal() || $this->redirectChecker->canRedirect($url->getRouteName(), $request)) {
       $event->setResponse(new RedirectResponse($url->toString(), 301));
     }
   }
