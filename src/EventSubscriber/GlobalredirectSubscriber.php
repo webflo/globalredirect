@@ -170,7 +170,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     }
 
     $system_path = $this->aliasManager->getPathByAlias($path);
-    $alias = $this->aliasManager->getAliasByPath($system_path, $this->languageManager->getCurrentLanguage()->id);
+    $alias = $this->aliasManager->getAliasByPath($system_path, $this->languageManager->getCurrentLanguage()->getId());
     // If the alias defined in the system is not the same as the one via which
     // the page has been accessed do a redirect to the one defined in the
     // system.
