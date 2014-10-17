@@ -215,7 +215,8 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     $url->setOption('query', $query);
     $url->setAbsolute(TRUE);
 
-    if ($url->isExternal() || $this->redirectChecker->canRedirect($url->getRouteName(), $request)) {
+    // We can only check access for routed URLs.
+    if (!$url->isRouted() || $this->redirectChecker->canRedirect($url->getRouteName(), $request)) {
       $event->setResponse(new RedirectResponse($url->toString(), 301));
     }
   }
