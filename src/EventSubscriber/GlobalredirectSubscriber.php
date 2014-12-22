@@ -120,10 +120,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectDeslash(GetResponseEvent $event) {
-    // For the front page we get into a loop because $request->getPathInfo()
-    // will return the "/" no matter if the site has been accessed via slashed
-    // or deslashed url.
-    if (!$this->config->get('deslash') || drupal_is_front_page()) {
+    if (!$this->config->get('deslash')) {
       return;
     }
 
@@ -146,7 +143,8 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectFrontPage(GetResponseEvent $event) {
-    if (!$this->config->get('frontpage_redirect') || !drupal_is_front_page()) {
+    return;
+    if (!$this->config->get('frontpage_redirect')) {
       return;
     }
 
