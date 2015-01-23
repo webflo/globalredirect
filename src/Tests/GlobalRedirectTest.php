@@ -60,7 +60,7 @@ class GlobalRedirectTest extends WebTestBase {
   function setUp() {
     parent::setUp();
 
-    $this->config = \Drupal::config('globalredirect.settings');
+    $this->config = $this->config('globalredirect.settings');
 
     $this->drupalCreateContentType(array('type' => 'page', 'name' => 'Page'));
     $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
@@ -141,7 +141,7 @@ class GlobalRedirectTest extends WebTestBase {
     // Test front page redirects.
 
     $this->config->set('frontpage_redirect', TRUE)->save();
-    \Drupal::config('system.site')->set('page.front', 'node')->save();
+    $this->config('system.site')->set('page.front', 'node')->save();
     $this->assertRedirect('node', '<front>');
 
     $this->config->set('frontpage_redirect', FALSE)->save();

@@ -22,6 +22,13 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
     return 'globalredirect_settings';
   }
 
+	/**
+	 * {@inheritdoc}
+	 */
+	protected function getEditableConfigNames() {
+		return ['globalredirect.settings'];
+	}
+
   /**
    * {@inheritdoc}
    */
