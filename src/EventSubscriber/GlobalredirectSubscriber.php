@@ -129,7 +129,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
       $path_info = trim($path_info, '/');
       try {
         $path_info = $this->aliasManager->getPathByAlias($path_info);
-        $this->setResponse($event, Url::fromUri('base://' . $path_info));
+        $this->setResponse($event, Url::fromUri('user-path:' . $path_info));
       }
       catch (MatchingRouteNotFoundException $e) {
         // Do nothing here as it is not our responsibility to handle this.
@@ -193,7 +193,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     $term = $this->entityManager->getStorage('taxonomy_term')->load($matches[1]);
     if (!empty($term) && $term->url() != $request->getPathInfo()) {
       $system_path = $this->aliasManager->getPathByAlias(ltrim($term->url(), '/'));
-      $this->setResponse($event, Url::fromUri('base://' . $system_path));
+      $this->setResponse($event, Url::fromUri('user-path:' . $system_path));
     }
   }
 
