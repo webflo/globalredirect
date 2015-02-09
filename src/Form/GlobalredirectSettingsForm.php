@@ -9,6 +9,7 @@ namespace Drupal\globalredirect\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Defines a form to configure module settings.
@@ -98,7 +99,7 @@ class GlobalredirectSettingsForm extends ConfigFormBase {
 	    '#title' => $this->t('Frontpage Redirect Handler'),
 	    '#description' => $this->t('If enabled, any request to the frontpage path will redirect to the site root.<br />
 	                         Whatever you set as the path of the front page on the !link settings page will redirect to the site root (e.g. "node" or "node/1" and also its alias (e.g. in case you have set "node/1" as your home page but that page also has an alias "home")).', array(
-	      '!link' => l($this->t('Site Information'), 'admin/settings/site-information'),
+	      '!link' => $this->l($this->t('Site Information'), Url::fromRoute('system.site_information_settings')),
 	    )),
 	    '#default_value' => $settings['frontpage_redirect'],
 	  );
