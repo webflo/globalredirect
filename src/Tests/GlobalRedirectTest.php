@@ -14,6 +14,8 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Global redirect test cases.
+ *
+ * @group globalredirect
  */
 class GlobalRedirectTest extends WebTestBase {
 
