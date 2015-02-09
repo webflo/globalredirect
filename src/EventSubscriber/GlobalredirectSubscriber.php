@@ -144,6 +144,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectFrontPage(GetResponseEvent $event) {
+    // @todo get front page redirects working.
     return;
     if (!$this->config->get('frontpage_redirect')) {
       return;
