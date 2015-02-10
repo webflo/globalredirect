@@ -48,17 +48,6 @@ class GlobalRedirectTest extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  public static function getInfo() {
-    return array(
-      'name' => 'Global Redirect',
-      'description' => 'Ensure that Global Redirect functions correctly',
-      'group' => 'Global Redirect',
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   function setUp() {
     parent::setUp();
 
