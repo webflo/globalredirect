@@ -41,9 +41,10 @@ class GlobalRedirectTest extends WebTestBase {
    */
   protected $config;
 
-  protected $forumTerm;
-  protected $term;
-  protected $node;
+  /**
+   * @var \Drupal\Core\Entity\ContentEntityInterface
+   */
+  protected $forumTerm, $term, $node;
 
   /**
    * {@inheritdoc}
