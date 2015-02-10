@@ -129,7 +129,8 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
       $path_info = trim($path_info, '/');
       try {
         $path_info = $this->aliasManager->getPathByAlias($path_info);
-        $this->setResponse($event, Url::fromUri('user-path:' . $path_info));
+        // Need to add the slash back.
+        $this->setResponse($event, Url::fromUri('user-path:/' . $path_info));
       }
       catch (MatchingRouteNotFoundException $e) {
         // Do nothing here as it is not our responsibility to handle this.
@@ -143,6 +144,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectFrontPage(GetResponseEvent $event) {
+    // @todo get front page redirects working.
     return;
     if (!$this->config->get('frontpage_redirect')) {
       return;

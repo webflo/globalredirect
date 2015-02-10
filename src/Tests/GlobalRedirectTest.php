@@ -14,6 +14,8 @@ use Drupal\simpletest\WebTestBase;
 
 /**
  * Global redirect test cases.
+ *
+ * @group globalredirect
  */
 class GlobalRedirectTest extends WebTestBase {
 
@@ -42,17 +44,6 @@ class GlobalRedirectTest extends WebTestBase {
   protected $forumTerm;
   protected $term;
   protected $node;
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Global Redirect',
-      'description' => 'Ensure that Global Redirect functions correctly',
-      'group' => 'Global Redirect',
-    );
-  }
 
   /**
    * {@inheritdoc}
