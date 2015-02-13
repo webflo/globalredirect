@@ -144,8 +144,6 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectFrontPage(GetResponseEvent $event) {
-    // @todo get front page redirects working.
-    return;
     if (!$this->config->get('frontpage_redirect')) {
       return;
     }
@@ -153,8 +151,9 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     $request = $event->getRequest();
     $path = trim($request->getPathInfo(), '/');
 
-    // Redirect only if the current path is not the root.
-    if (!empty($path)) {
+    // Redirect only if the current path is not the root and this is the front
+    // page.
+    if (!empty($path) && $path == \Drupal::config('system.site')->get('page.front')) {
       $this->setResponse($event, Url::fromRoute('<front>'));
     }
   }
