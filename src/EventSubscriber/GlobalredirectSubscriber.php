@@ -16,6 +16,7 @@ use Drupal\Core\Routing\MatchingRouteNotFoundException;
 use Drupal\Core\Url;
 use Drupal\globalredirect\RedirectChecker;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -102,7 +103,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    *   The Event to process.
    */
   public function globalredirectCleanUrls(GetResponseEvent $event) {
-    if (!$this->config->get('nonclean_to_clean')) {
+    if (!$this->config->get('nonclean_to_clean') || $event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
       return;
     }
 
@@ -120,7 +121,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectDeslash(GetResponseEvent $event) {
-    if (!$this->config->get('deslash')) {
+    if (!$this->config->get('deslash') || $event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
       return;
     }
 
@@ -144,7 +145,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectFrontPage(GetResponseEvent $event) {
-    if (!$this->config->get('frontpage_redirect')) {
+    if (!$this->config->get('frontpage_redirect') || $event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
       return;
     }
 
@@ -164,7 +165,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    */
   public function globalredirectNormalizeAliases(GetResponseEvent $event) {
-    if (!$this->config->get('normalize_aliases') || !$path = trim($event->getRequest()->getPathInfo(), '/')) {
+    if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST || !$this->config->get('normalize_aliases') || !$path = trim($event->getRequest()->getPathInfo(), '/')) {
       return;
     }
 
@@ -187,7 +188,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
    */
   public function globalredirectForum(GetResponseEvent $event) {
     $request = $event->getRequest();
-    if (!$this->config->get('term_path_handler') || !$this->moduleHandler->moduleExists('forum') || !preg_match('/taxonomy\/term\/([0-9]+)$/', $request->getUri(), $matches)) {
+    if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST || !$this->config->get('term_path_handler') || !$this->moduleHandler->moduleExists('forum') || !preg_match('/taxonomy\/term\/([0-9]+)$/', $request->getUri(), $matches)) {
       return;
     }
 
