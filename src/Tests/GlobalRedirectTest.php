@@ -146,8 +146,13 @@ class GlobalRedirectTest extends WebTestBase {
     $this->config('system.site')->set('page.front', 'node')->save();
     $this->assertRedirect('node', '<front>');
 
+    // Test front page redirects with an alias.
+    \Drupal::service('path.alias_storage')->save('node', 'node-alias');
+    $this->assertRedirect('node-alias', '<front>');
+
     $this->config->set('frontpage_redirect', FALSE)->save();
     $this->assertRedirect('node', NULL, 'HTTP/1.1 200 OK');
+    $this->assertRedirect('node-alias', NULL, 'HTTP/1.1 200 OK');
 
     // Test the access checking.
 
