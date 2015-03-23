@@ -8,12 +8,10 @@ cache:
 
 php:
   - 5.4
-  - 5.5
-  - 5.6
 
 env:
-  - DIR=../drupal URL=http://localhost
-  - DIR=.. URL=http://localhost/drupal
+  - SUBDIR=../drupal URL=http://localhost
+  - SUBDIR=.. URL=http://localhost/drupal
 
 # This will create the database
 mysql:
@@ -45,6 +43,7 @@ install:
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
   # Make sure the apache root is in our wanted directory
   - echo "$(curl -fsSL https://gist.githubusercontent.com/nickveenhof/11386315/raw/b8abaf9304fe12b5cc7752d39c29c1edae8ac2e6/gistfile1.txt)" | sed -e "s,PATH,$TRAVIS_BUILD_DIR/$SUBDIR,g" | sudo tee /etc/apache2/sites-available/default > /dev/null
+  - cat /etc/apache2/sites-available/default
   # Set sendmail so drush doesn't throw an error during site install.
   - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
   # Forward the errors to the syslog so we can print them
