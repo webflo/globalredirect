@@ -154,7 +154,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
 
     // Redirect only if the current path is not the root and this is the front
     // page.
-    if (!empty($path) && $path == \Drupal::config('system.site')->get('page.front')) {
+    if ($this->isFrontPage($path)) {
       $this->setResponse($event, Url::fromRoute('<front>'));
     }
   }
@@ -234,4 +234,26 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
     $events[KernelEvents::REQUEST][] = array('globalredirectForum', 37);
     return $events;
   }
+
+  /**
+   * Determine if the given path is the site's front page.
+   *
+   * @param string $path
+   *   The path to check.
+   *
+   * @return bool
+   *   Returns TRUE if the path is the site's front page.
+   */
+  protected function isFrontPage($path) {
+    // @todo PathMatcher::isFrontPage() doesn't work here for some reason.
+    $front = \Drupal::config('system.site')->get('page.front');
+
+    // This might be an alias.
+    $alias_path = \Drupal::service('path.alias_manager')->getPathByAlias($path);
+
+    return !empty($path)
+      // Path matches front or alias to front.
+      && (($path == $front) || ($alias_path == $front));
+  }
+
 }
