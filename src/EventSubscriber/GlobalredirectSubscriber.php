@@ -216,7 +216,7 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
 
     // We can only check access for routed URLs.
     if (!$url->isRouted() || $this->redirectChecker->canRedirect($url->getRouteName(), $request)) {
-      // Add the rendered cache tag, so that we can invalidate all responses
+      // Add the 'rendered' cache tag, so that we can invalidate all responses
       // when settings are changed.
       $headers = [
         'X-Drupal-Cache-Tags' => 'rendered',
