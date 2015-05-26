@@ -221,7 +221,11 @@ class GlobalredirectSubscriber implements EventSubscriberInterface {
       $headers = [
         'X-Drupal-Cache-Tags' => 'rendered',
       ];
+
       $event->setResponse(new RedirectResponse($url->toString(), 301, $headers));
+
+      // Mark this response as uncacheable.
+      \Drupal::service('page_cache_kill_switch')->trigger();
     }
   }
 
